@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Road Home">
+<title>The Road Home</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --cream:#F7F3ED;
+  --warm-white:#FDFAF6;
+  --ink:#1C1A17;
+  --ink-light:#4A4640;
+  --ink-faint:#8C8880;
+  --gold:#A07840;
+  --gold-light:#C9A96E;
+  --gold-pale:#F2E8D8;
+  --teal:#2C6E5A;
+  --teal-light:#E8F2EE;
+  --red:#8C3020;
+  --red-light:#F5EAE7;
+  --border:#DDD8D0;
+  --shadow:rgba(28,26,23,0.08);
+}
+html,body{height:100%;background:var(--cream);font-family:'DM Sans',sans-serif;color:var(--ink);overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:480px;margin:0 auto;background:var(--warm-white);position:relative}
+
+/* HEADER */
+.header{padding:env(safe-area-inset-top) 0 0;background:var(--warm-white);border-bottom:1px solid var(--border);flex-shrink:0}
+.header-inner{padding:.9rem 1.25rem .75rem;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--ink);letter-spacing:-.3px}
+.logo span{color:var(--gold)}
+.date-chip{font-size:11px;color:var(--ink-faint);font-weight:400;letter-spacing:.03em}
+
+/* NAV */
+.nav{display:grid;grid-template-columns:repeat(4,1fr);background:var(--warm-white);flex-shrink:0}
+.nav-btn{padding:.6rem 0 .55rem;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;color:var(--ink-faint);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.03em}
+.nav-btn svg{opacity:.5;transition:opacity .2s}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:500}
+.nav-btn.active svg{opacity:1}
+
+/* SCROLL AREA */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1.25rem 1.1rem calc(env(safe-area-inset-bottom) + 1.5rem)}
+.screen{display:none}.screen.active{display:block}
+
+/* TYPOGRAPHY */
+.screen-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--ink);line-height:1.2;margin-bottom:3px}
+.screen-sub{font-size:12px;color:var(--ink-faint);margin-bottom:1.25rem;letter-spacing:.02em}
+.section-label{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin:1.2rem 0 .6rem}
+
+/* CARDS */
+.card{background:var(--warm-white);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;margin-bottom:.75rem;box-shadow:0 1px 4px var(--shadow)}
+.card-accent{border-left:3px solid var(--gold)}
+.card-accent-teal{border-left:3px solid var(--teal)}
+.card-accent-red{border-left:3px solid var(--red)}
+
+/* PRACTICE ROW */
+.practice{display:flex;align-items:flex-start;gap:.8rem;margin-bottom:.65rem}
+.practice:last-child{margin-bottom:0}
+.p-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;margin-top:1px;background:var(--warm-white)}
+.p-check.done{background:var(--teal);border-color:var(--teal)}
+.p-check.done::after{content:'';display:block;width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+.p-title{font-size:14px;font-weight:500;color:var(--ink);line-height:1.4}
+.p-title.done{color:var(--ink-faint);text-decoration:line-through}
+.p-sub{font-size:12px;color:var(--ink-faint);line-height:1.5;margin-top:2px}
+.p-badge{font-size:10px;font-weight:500;padding:1px 7px;border-radius:20px;background:var(--gold-pale);color:var(--gold);display:inline-block;margin-bottom:5px;letter-spacing:.03em}
+.p-badge-teal{background:var(--teal-light);color:var(--teal)}
+.p-badge-red{background:var(--red-light);color:var(--red)}
+
+/* EXPAND */
+.expand-btn{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--gold);cursor:pointer;padding:0;margin-top:.6rem;display:flex;align-items:center;gap:4px;font-weight:500}
+.expand-content{display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.expand-content.open{display:block}
+.prayer-text{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--ink-light);line-height:1.85}
+
+/* PROGRESS */
+.progress-bar{height:4px;background:var(--border);border-radius:2px;margin-bottom:1.25rem;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold-light));border-radius:2px;transition:width .4s ease}
+.progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+.progress-label{font-size:12px;color:var(--ink-faint)}
+.progress-pct{font-size:12px;font-weight:500;color:var(--teal)}
+
+/* EXAMEN */
+.examen-num{width:28px;height:28px;border-radius:50%;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;color:var(--gold);flex-shrink:0}
+.examen-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;background:var(--warm-white)}
+.examen-check.done{background:var(--red);border-color:var(--red)}
+.examen-check.done::after{content:'';display:block;width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:.65rem .8rem;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);resize:none;line-height:1.6;margin-top:.6rem;outline:none;transition:border-color .2s}
+textarea:focus{border-color:var(--gold-light)}
+.save-btn{width:100%;padding:.85rem;border:none;background:var(--teal);color:#fff;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;margin-top:.85rem;letter-spacing:.02em;transition:opacity .2s}
+.save-btn:active{opacity:.85}
+
+/* WEEKLY */
+.weekly-item{display:flex;align-items:center;gap:.85rem;padding:.85rem 1rem;background:var(--warm-white);border:1px solid var(--border);border-radius:12px;margin-bottom:.65rem;cursor:pointer;box-shadow:0 1px 3px var(--shadow)}
+.weekly-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.weekly-check{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;margin-left:auto;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;background:var(--warm-white)}
+.weekly-check.done{background:var(--gold);border-color:var(--gold)}
+.weekly-check.done::after{content:'';display:block;width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+
+/* ALARMS */
+.alarm-item{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;border-bottom:1px solid var(--border)}
+.alarm-item:last-child{border-bottom:none}
+.alarm-time{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--ink);letter-spacing:-.5px}
+.alarm-label{font-size:13px;color:var(--ink-light);margin-top:1px}
+.alarm-note{font-size:11px;color:var(--ink-faint);margin-top:1px}
+.toggle{width:40px;height:22px;background:var(--border);border-radius:11px;position:relative;cursor:pointer;transition:background .25s;flex-shrink:0}
+.toggle.on{background:var(--teal)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* STREAK */
+.streak-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:.5rem}
+.streak-day{aspect-ratio:1;border-radius:6px;background:var(--cream);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--ink-faint);cursor:pointer;transition:all .2s}
+.streak-day.filled{background:var(--teal);border-color:var(--teal);color:#fff}
+.streak-day.today{border-color:var(--gold);color:var(--gold)}
+.streak-day.filled.today{background:var(--gold);border-color:var(--gold);color:#fff}
+
+/* INFO BOX */
+.info-box{background:var(--gold-pale);border:1px solid #DFD0B4;border-radius:10px;padding:.85rem 1rem;font-size:13px;color:var(--ink-light);line-height:1.65;margin-bottom:.75rem}
+.info-box b{color:var(--ink);font-weight:500}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:1rem 0}
+
+/* CROSS ICON */
+.cross{display:inline-block;font-size:18px;color:var(--gold);margin-right:6px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-inner">
+      <div class="logo">The Road <span>Home</span></div>
+      <div class="date-chip" id="date-chip"></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="show('today',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Today
+    </button>
+    <button class="nav-btn" onclick="show('examen',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+      Examen
+    </button>
+    <button class="nav-btn" onclick="show('weekly',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Weekly
+    </button>
+    <button class="nav-btn" onclick="show('alarms',this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3L2 6"/><path d="M22 6l-3-3"/></svg>
+      Alarms
+    </button>
+  </div>
+
+  <div class="scroll">
+
+    <!-- TODAY -->
+    <div id="screen-today" class="screen active">
+      <div class="screen-title" id="greeting">Good morning, Mike</div>
+      <div class="screen-sub" id="full-date">Loading…</div>
+
+      <div class="progress-row">
+        <div class="progress-label" id="prog-label">0 of 7 practices complete</div>
+        <div class="progress-pct" id="prog-pct">0%</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+
+      <div class="section-label">Morning — 4:30 am</div>
+
+      <div class="card card-accent">
+        <div class="p-badge">Step 1 — Recognition</div>
+        <div class="practice">
+          <div class="p-check" onclick="tap(this,'t1')"></div>
+          <div>
+            <div class="p-title" id="t1-title">First 60 seconds</div>
+            <div class="p-sub">Say aloud: "God, You are God. I am not. I belong to You today." Then Sign of the Cross — slow, deliberate.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-accent">
+        <div class="p-badge">Step 2 — Surrender</div>
+        <div class="practice">
+          <div class="p-check" onclick="tap(this,'t2')"></div>
+          <div>
+            <div class="p-title" id="t2-title">The Suscipe</div>
+            <div class="p-sub">St. Ignatius of Loyola — your patron's prayer of total surrender</div>
+          </div>
+        </div>
+        <button class="expand-btn" onclick="toggleExp(this)">▸ Read the prayer</button>
+        <div class="expand-content">
+          <div class="prayer-text">Take, Lord, and receive all my liberty, my memory, my understanding, and my entire will, all that I have and possess. Thou hast given all to me. To Thee, O Lord, I return it. All is Thine; dispose of it wholly according to Thy will. Give me Thy love and Thy grace, for this is sufficient for me. Amen.</div>
+        </div>
+      </div>
+
+      <div class="card card-accent-teal">
+        <div class="p-badge p-badge-teal">Step 4 — Lectio Divina</div>
+        <div class="practice">
+          <div class="p-check" onclick="tap(this,'t3')"></div>
+          <div>
+            <div class="p-title" id="t3-title">Sacred reading — 20 min</div>
+            <div class="p-sub">Open Magnificat app for today's Mass readings. Four passes: Read → Meditate → Pray → Contemplate. Write one sentence in your journal.</div>
+          </div>
+        </div>
+        <button class="expand-btn" onclick="toggleExp(this)">▸ How Lectio works</button>
+        <div class="expand-content">
+          <div style="font-size:13px;color:var(--ink-light);line-height:1.7">
+            <div style="margin-bottom:6px"><strong>1. Lectio</strong> — Read slowly, out loud. What word catches you?</div>
+            <div style="margin-bottom:6px"><strong>2. Meditatio</strong> — Read again. Why this word, today, for me?</div>
+            <div style="margin-bottom:6px"><strong>3. Oratio</strong> — Read a third time. Respond to God in prayer.</div>
+            <div><strong>4. Contemplatio</strong> — Read once more. Put it down. Rest in silence. Let Him work.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-accent-teal">
+        <div class="p-badge p-badge-teal">Journal — front page</div>
+        <div class="practice">
+          <div class="p-check" onclick="tap(this,'t4')"></div>
+          <div>
+            <div class="p-title" id="t4-title">Bible journal entry</div>
+            <div class="p-sub">Passage → Main Theme → Something God is Teaching Me → Reflection → Prayer. Your Confirmation gift put to work.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-label">Evening — 8:45 pm</div>
+
+      <div class="card card-accent-red">
+        <div class="p-badge p-badge-red">Step 6 — Interior Work</div>
+        <div class="practice">
+          <div class="p-check" id="examen-main-check" onclick="tap(this,'t5')"></div>
+          <div>
+            <div class="p-title" id="t5-title">Ignatian Examen — 15 min</div>
+            <div class="p-sub">Tap the Examen tab to begin. Your patron saint's daily practice.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-accent">
+        <div class="p-badge">Step 3 — Repentance</div>
+        <div class="practice">
+          <div class="p-check" onclick="tap(this,'t6')"></div>
+          <div>
+            <div class="p-title" id="t6-title">Act of Contrition</div>
+            <div class="p-sub">Name what was disordered. Receive mercy. Sleep.</div>
+          </div>
+        </div>
+        <button class="expand-btn" onclick="toggleExp(this)">▸ Read the prayer</button>
+        <div class="expand-content">
+          <div class="prayer-text">O my God, I am heartily sorry for having offended Thee, and I detest all my sins because I dread the loss of heaven and the pains of hell, but most of all because they offend Thee, my God, who art all good and deserving of all my love. I firmly resolve, with the help of Thy grace, to confess my sins, to do penance, and to amend my life. Amen.</div>
+        </div>
+      </div>
+
+      <div class="card card-accent-teal">
+        <div class="p-badge p-badge-teal">Journal — back page</div>
+        <div class="practice">
+          <div class="p-check" onclick="tap(this,'t7')"></div>
+          <div>
+            <div class="p-title" id="t7-title">Gratitude + discernment note</div>
+            <div class="p-sub">Fill "What I'm Grateful For" (4 items) and one sentence of what you noticed God doing today.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">This week</div>
+      <div class="card">
+        <div style="font-size:12px;color:var(--ink-faint);margin-bottom:.5rem">Tap a day to mark it complete</div>
+        <div class="streak-grid" id="streak-grid"></div>
+      </div>
+    </div>
+
+    <!-- EXAMEN -->
+    <div id="screen-examen" class="screen">
+      <div class="screen-title">Evening Examen</div>
+      <div class="screen-sub">15 minutes · St. Ignatius of Loyola</div>
+
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;gap:.8rem;margin-bottom:1rem">
+          <div class="examen-num">1</div>
+          <div style="flex:1">
+            <div class="p-title">Gratitude</div>
+            <div class="p-sub">Name 3 specific gifts from today. Not general — specific.</div>
+            <textarea rows="3" id="e1" placeholder="The quiet before the house woke. The homily that landed. The moment Sabrina…"></textarea>
+          </div>
+          <div class="examen-check" onclick="this.classList.toggle('done')"></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:.8rem;margin-bottom:1rem">
+          <div class="examen-num">2</div>
+          <div style="flex:1">
+            <div class="p-title">Ask for light</div>
+            <div class="p-sub">Pray aloud: "Lord, show me my day through Your eyes."</div>
+          </div>
+          <div class="examen-check" onclick="this.classList.toggle('done')"></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:.8rem;margin-bottom:1rem">
+          <div class="examen-num">3</div>
+          <div style="flex:1">
+            <div class="p-title">Review the day</div>
+            <div class="p-sub">Where did you feel God? Where did you turn away?</div>
+            <textarea rows="3" id="e3" placeholder="I felt drawn toward… I turned away when…"></textarea>
+          </div>
+          <div class="examen-check" onclick="this.classList.toggle('done')"></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:.8rem;margin-bottom:1rem">
+          <div class="examen-num">4</div>
+          <div style="flex:1">
+            <div class="p-title">Ask forgiveness</div>
+            <div class="p-sub">Name it. Receive mercy. Do not linger in shame.</div>
+            <textarea rows="2" id="e4" placeholder="I want to bring to God…"></textarea>
+          </div>
+          <div class="examen-check" onclick="this.classList.toggle('done')"></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:.8rem;margin-bottom:1rem">
+          <div class="examen-num">5</div>
+          <div style="flex:1">
+            <div class="p-title">Look forward</div>
+            <div class="p-sub">What do you need tomorrow? Ask specifically.</div>
+            <textarea rows="2" id="e5" placeholder="Tomorrow I anticipate… Lord, I need…"></textarea>
+          </div>
+          <div class="examen-check" onclick="this.classList.toggle('done')"></div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:.85rem;margin-top:.25rem">
+          <div style="font-size:12px;font-weight:500;color:var(--ink-light);margin-bottom:2px">Discernment note</div>
+          <div style="font-size:12px;color:var(--ink-faint);margin-bottom:0">Did you feel the weight today? Consolation or desolation? One sentence.</div>
+          <textarea rows="2" id="e-disc" placeholder="Today I noticed…"></textarea>
+        </div>
+
+        <button class="save-btn" onclick="completeExamen()">✓ Mark Examen complete</button>
+      </div>
+    </div>
+
+    <!-- WEEKLY -->
+    <div id="screen-weekly" class="screen">
+      <div class="screen-title">This Week</div>
+      <div class="screen-sub" id="week-sub">Non-negotiables</div>
+
+      <div class="info-box">You are 10 days post-Confirmation. The foundation is laid. These five practices build the interior life discernment requires.</div>
+
+      <div class="section-label">Non-negotiables</div>
+
+      <div class="weekly-item">
+        <div class="weekly-icon" style="background:#F2E8D8">✝️</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:var(--ink)">Sunday Mass</div>
+          <div style="font-size:12px;color:var(--ink-faint)">With intention — track the 7 steps in the liturgy</div>
+        </div>
+        <div class="weekly-check" onclick="this.classList.toggle('done')"></div>
+      </div>
+
+      <div class="weekly-item">
+        <div class="weekly-icon" style="background:var(--teal-light)">🕯️</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:var(--ink)">Eucharistic Adoration</div>
+          <div style="font-size:12px;color:var(--ink-faint)">30 min — no phone, no agenda. Bring the weight.</div>
+        </div>
+        <div class="weekly-check" onclick="this.classList.toggle('done')"></div>
+      </div>
+
+      <div class="weekly-item">
+        <div class="weekly-icon" style="background:#F2E8D8">📿</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:var(--ink)">The Rosary</div>
+          <div style="font-size:12px;color:var(--ink-faint)">Full rosary — one commute or workout this week</div>
+        </div>
+        <div class="weekly-check" onclick="this.classList.toggle('done')"></div>
+      </div>
+
+      <div class="weekly-item">
+        <div class="weekly-icon" style="background:var(--red-light)">📖</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:var(--ink)">Spiritual reading</div>
+          <div style="font-size:12px;color:var(--ink-faint)">One chapter of Gallagher — slowly</div>
+        </div>
+        <div class="weekly-check" onclick="this.classList.toggle('done')"></div>
+      </div>
+
+      <div class="weekly-item">
+        <div class="weekly-icon" style="background:var(--teal-light)">🤝</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:var(--ink)">Confession</div>
+          <div style="font-size:12px;color:var(--ink-faint)">Monthly — schedule it like an appointment</div>
+        </div>
+        <div class="weekly-check" onclick="this.classList.toggle('done')"></div>
+      </div>
+
+      <div class="section-label">Discernment — this week</div>
+      <div class="info-box">In Adoration, hold this: <b>"If God told me tonight He does not want me to be a deacon — would I feel relieved, or would I feel loss?"</b> Write the answer in tonight's Examen.</div>
+
+      <div class="weekly-item">
+        <div class="weekly-icon" style="background:var(--gold-pale)">💬</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:500;color:var(--ink)">Ask your Deacon</div>
+          <div style="font-size:12px;color:var(--ink-faint)">"Would you be willing to meet monthly as my spiritual director?"</div>
+        </div>
+        <div class="weekly-check" onclick="this.classList.toggle('done')"></div>
+      </div>
+
+      <div class="section-label">Prayers to memorize</div>
+      <div class="card">
+        <button class="expand-btn" onclick="toggleExp(this)">▸ The Suscipe — St. Ignatius</button>
+        <div class="expand-content"><div class="prayer-text">Take, Lord, and receive all my liberty, my memory, my understanding, and my entire will, all that I have and possess. Thou hast given all to me. To Thee, O Lord, I return it. All is Thine; dispose of it wholly according to Thy will. Give me Thy love and Thy grace, for this is sufficient for me. Amen.</div></div>
+      </div>
+      <div class="card">
+        <button class="expand-btn" onclick="toggleExp(this)">▸ Act of Contrition</button>
+        <div class="expand-content"><div class="prayer-text">O my God, I am heartily sorry for having offended Thee, and I detest all my sins because I dread the loss of heaven and the pains of hell, but most of all because they offend Thee, my God, who art all good and deserving of all my love. I firmly resolve, with the help of Thy grace, to confess my sins, to do penance, and to amend my life. Amen.</div></div>
+      </div>
+      <div class="card">
+        <button class="expand-btn" onclick="toggleExp(this)">▸ Prayer to St. Michael</button>
+        <div class="expand-content"><div class="prayer-text">St. Michael the Archangel, defend us in battle. Be our protection against the wickedness and snares of the devil. May God rebuke him, we humbly pray; and do thou, O Prince of the heavenly host, by the power of God, cast into hell Satan and all the evil spirits who prowl about the world seeking the ruin of souls. Amen.</div></div>
+      </div>
+    </div>
+
+    <!-- ALARMS -->
+    <div id="screen-alarms" class="screen">
+      <div class="screen-title">Phone Alarms</div>
+      <div class="screen-sub">Set these in your iPhone Clock app — the label is the practice</div>
+
+      <div class="card">
+        <div class="alarm-item">
+          <div>
+            <div class="alarm-time">4:30 AM</div>
+            <div class="alarm-label">"God, You are God. I am not."</div>
+            <div class="alarm-note">Wake · Recognition · Step 1</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="alarm-item">
+          <div>
+            <div class="alarm-time">4:35 AM</div>
+            <div class="alarm-label">"Take, Lord, and receive…"</div>
+            <div class="alarm-note">The Suscipe · Surrender · Step 2</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="alarm-item">
+          <div>
+            <div class="alarm-time">4:45 AM</div>
+            <div class="alarm-label">"Lectio — open Magnificat"</div>
+            <div class="alarm-note">Sacred reading · 20 min · Step 4</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="alarm-item">
+          <div>
+            <div class="alarm-time">8:45 PM</div>
+            <div class="alarm-label">"Examen — begin now"</div>
+            <div class="alarm-note">Ignatian Examen · 15 min · Step 6</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="alarm-item">
+          <div>
+            <div class="alarm-time">9:05 PM</div>
+            <div class="alarm-label">"Act of Contrition — close the day"</div>
+            <div class="alarm-note">Repentance · Step 3 · Sleep</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+
+      <div class="section-label">Weekly alarms</div>
+      <div class="card">
+        <div class="alarm-item">
+          <div>
+            <div class="alarm-time" style="font-size:18px">Sun 9:00 AM</div>
+            <div class="alarm-label">"Mass — track the 7 steps"</div>
+          </div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="alarm-item">
+          <div>
+            <div class="alarm-time" style="font-size:18px">Choose a day</div>
+            <div class="alarm-label">"Adoration — bring the weight"</div>
+            <div class="alarm-note">30 min · no phone · no agenda</div>
+          </div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="alarm-item">
+          <div>
+            <div class="alarm-time" style="font-size:18px">Choose a day</div>
+            <div class="alarm-label">"Rosary — one commute"</div>
+          </div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-top:.5rem">In iPhone Clock: tap <b>+</b> to add an alarm, then tap the label field to type the name. The label appears on your lock screen. You don't need to think — just obey what the screen says.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// State
+const KEYS = ['t1','t2','t3','t4','t5','t6','t7'];
+const TOTAL = KEYS.length;
+let state = JSON.parse(localStorage.getItem('rh_today') || '{}');
+let streakData = JSON.parse(localStorage.getItem('rh_streak') || '{}');
+let lastDate = localStorage.getItem('rh_lastdate') || '';
+
+const todayStr = () => new Date().toDateString();
+
+function resetIfNewDay() {
+  if (lastDate !== todayStr()) {
+    state = {};
+    localStorage.setItem('rh_today', '{}');
+    localStorage.setItem('rh_lastdate', todayStr());
+    lastDate = todayStr();
+  }
+}
+
+function tap(el, id) {
+  el.classList.toggle('done');
+  const title = document.getElementById(id + '-title');
+  if (title) title.classList.toggle('done', el.classList.contains('done'));
+  state[id] = el.classList.contains('done');
+  localStorage.setItem('rh_today', JSON.stringify(state));
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = KEYS.filter(k => state[k]).length;
+  const pct = Math.round((done / TOTAL) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-label').textContent = done + ' of ' + TOTAL + ' practices complete';
+}
+
+function restoreChecks() {
+  KEYS.forEach(id => {
+    if (state[id]) {
+      const checks = document.querySelectorAll('[onclick*="' + id + '"]');
+      checks.forEach(c => c.classList.add('done'));
+      const title = document.getElementById(id + '-title');
+      if (title) title.classList.add('done');
+    }
+  });
+  updateProgress();
+}
+
+function completeExamen() {
+  const el = document.getElementById('examen-main-check');
+  if (el) { el.classList.add('done'); }
+  state['t5'] = true;
+  localStorage.setItem('rh_today', JSON.stringify(state));
+  updateProgress();
+  // Save examen notes
+  const notes = {
+    date: todayStr(),
+    e1: document.getElementById('e1').value,
+    e3: document.getElementById('e3').value,
+    e4: document.getElementById('e4').value,
+    e5: document.getElementById('e5').value,
+    disc: document.getElementById('e-disc').value
+  };
+  let history = JSON.parse(localStorage.getItem('rh_examen_history') || '[]');
+  history.unshift(notes);
+  if (history.length > 90) history = history.slice(0, 90);
+  localStorage.setItem('rh_examen_history', JSON.stringify(history));
+  show('today', document.querySelector('.nav-btn'));
+  document.querySelectorAll('.nav-btn')[0].classList.add('active');
+}
+
+function show(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function toggleExp(btn) {
+  const c = btn.nextElementSibling;
+  c.classList.toggle('open');
+  btn.textContent = c.classList.contains('open')
+    ? btn.textContent.replace('▸','▾')
+    : btn.textContent.replace('▾','▸');
+}
+
+// Streak grid
+function buildStreak() {
+  const grid = document.getElementById('streak-grid');
+  const days = ['S','M','T','W','T','F','S'];
+  const today = new Date();
+  const dow = today.getDay();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - dow);
+  grid.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const key = d.toDateString();
+    const el = document.createElement('div');
+    el.className = 'streak-day' + (i === dow ? ' today' : '') + (streakData[key] ? ' filled' : '');
+    el.textContent = days[i];
+    el.onclick = function() {
+      this.classList.toggle('filled');
+      streakData[key] = this.classList.contains('filled');
+      localStorage.setItem('rh_streak', JSON.stringify(streakData));
+    };
+    grid.appendChild(el);
+  }
+}
+
+// Date/greeting
+function initDate() {
+  const now = new Date();
+  const h = now.getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting').textContent = greet + ', Mike';
+  const opts = {weekday:'long',month:'long',day:'numeric',year:'numeric'};
+  document.getElementById('full-date').textContent = now.toLocaleDateString('en-US', opts);
+  document.getElementById('date-chip').textContent = now.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('week-sub').textContent = 'Week of ' + now.toLocaleDateString('en-US',{month:'long',day:'numeric'});
+}
+
+resetIfNewDay();
+restoreChecks();
+buildStreak();
+initDate();
+</script>
+</body>
+</html>
